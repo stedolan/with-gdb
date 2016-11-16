@@ -1,0 +1,39 @@
+#!/bin/bash
+
+cd "$(dirname $0)"
+make quiet || exit 2
+lib=`make filename`
+
+sh=${1#--}
+sh=${sh:-`basename "$SHELL"`}
+
+env () {
+    case "$sh" in
+        sh|bash|zsh)
+            echo "export $1='$2'";;
+        csh|tcsh)
+            echo "setenv $1 '$2'";;
+        fish)
+            echo "set -x $1 '$2'";;
+        *)
+            echo "unknown shell $sh" 1>&2
+    esac
+}
+
+ins () {
+    var="$1"
+    item="$2"
+    if [[ ":$var:" != *":$item:"* ]]; then
+        echo "$item${var:+":$var"}"
+    else
+        echo "$var"
+    fi
+}
+
+if [ `uname` = Darwin ]; then
+  var=DYLD_INSERT_LIBRARIES
+else
+  var=LD_PRELOAD
+fi
+
+env $var "`ins "${!var}" "$lib"`"

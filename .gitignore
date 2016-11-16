@@ -1,0 +1,5 @@
+segfaulty
+test
+attach_gdb.so
+attach_gdb.dylib
+*.dSYM
